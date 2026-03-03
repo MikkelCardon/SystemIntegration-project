@@ -53,6 +53,28 @@ namespace SystemIntegration_project.Controllers
                 
             return flightInfo;
         }
+
+        [HttpDelete("{flightNumber}")]
+        public async Task<ActionResult<FlightInfo>> Delete(string flightNumber)
+        {
+            FlightInfo flight = await _flightContext.flights.FindAsync(flightNumber);
+            if (flight == null)
+            {
+                return NotFound($"Flight {flightNumber} not found.");
+            }
+
+            try
+            {
+                _flightContext.Remove(flight);
+                await _flightContext.SaveChangesAsync();
+                return NoContent(); //204 No content
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return StatusCode(500, "Error while deleting flight");
+            }
+        }
         
     }
 }
