@@ -1,6 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Models;
+
+// Vi gør enumen public, så den kan bruges direkte som type i vores property.
+// Det gør koden simplere, og EF Core/JSON kan sagtens håndtere det.
+public enum FlightStatus
+{
+    OnTime,
+    Delayed,
+    Boarding,
+    Departed,
+    Cancelled
+}
 
 public class FlightInfo
 {
@@ -10,43 +21,19 @@ public class FlightInfo
     public DateTime DepartureTime { get; set; }
     public string Gate { get; set; }
 
-    private enum FlightStatus
-    {
-        OnTime,
-        Delayed,
-        Boarding,
-        Departed,
-        Cancelled
-    }
+    // Ved at bruge enumen direkte, slipper vi for manuel validering i en setter.
+    public FlightStatus Status { get; set; }
 
     public FlightInfo()
     {
     }
 
-    public FlightInfo(string flightNumber, string destination, DateTime departureTime, string gate, string status)
+    public FlightInfo(string flightNumber, string destination, DateTime departureTime, string gate, FlightStatus status)
     {
         FlightNumber = flightNumber;
         Destination = destination;
         DepartureTime = departureTime;
         Gate = gate;
-        Status = status; //Bruger setter for at validere.
-    }
-
-    private FlightStatus _status;
-
-    public string Status
-    {
-        get { return _status.ToString(); }
-        set
-        {
-            if (Enum.TryParse(value, out FlightStatus parsedStatus))
-            {
-                _status = parsedStatus;
-            }
-            else
-            {
-                throw new ArgumentException("Invalid status value.");
-            }
-        }
+        Status = status;
     }
 }

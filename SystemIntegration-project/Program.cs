@@ -26,7 +26,8 @@ public class Program
                 new TopicSpecifications.TopicSpecification(
                     topicName: "Delayed_Flights",
                     exchangeName: "flightInfo",
-                    filter: f => f.Status == "Delayed"
+                    // Vi sammenligner nu direkte med enumen i stedet for en streng.
+                    filter: f => f.Status == FlightStatus.Delayed
                 )
             );
             specs.TopicSpecificationsList.Add(
@@ -39,12 +40,15 @@ public class Program
             return specs;
         });
         
-        //RabbitMq
+        // RabbitMq
         var factory = new ConnectionFactory() { HostName = "localhost" };
         var connection = await factory.CreateConnectionAsync();
         var channel = await connection.CreateChannelAsync();
         await channel.ExchangeDeclareAsync("flightInfo", ExchangeType.Topic);
         
+        // PÆDAGOGISK NOTE: Vi registrerer IChannel som en singleton her. 
+        // Det er fint til dette projekt, men vær opmærksom på at kanaler ikke er trådsikre.
+        // I et produktionsmiljø bør man håndtere kanaler per request eller bruge en pool.
         builder.Services.AddSingleton<IChannel>(channel);
 
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
